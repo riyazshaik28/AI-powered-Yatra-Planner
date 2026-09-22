@@ -1,14 +1,20 @@
 from fastapi import FastAPI
-
-app=FastAPI(
-    title="Yatra planner",
-    description="Yatra planner is a web application that helps users plan their trips and vacations. It provides features such as itinerary planning, budget tracking, and travel recommendations.",
+from app.routes.planner import router as planner_router
+app = FastAPI(
+    title="Yatra Planner",
+    description="""
+    Yatra Planner is a travel data aggregation platform that integrates multiple external services,
+    including Weather, Places, and Currency APIs. The system provides both RESTful endpoints and
+    real-time updates through Server-Sent Events (SSE), enabling travelers to access live,
+    accurate, and centralized travel information efficiently.
+    """,
     version="1.0.0",
-    redoc_url="/docs",
-    docs_url="/redoc",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 
+app.include_router(planner_router)
 @app.get("/")
 async def root():
     return{
