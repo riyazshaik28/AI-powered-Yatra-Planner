@@ -1,24 +1,25 @@
 from datetime import date
 import os
+
 import httpx
-
-
-from ..models import  weatherResponseModel
-
 from dotenv import load_dotenv
-import os
+from ..models import weatherResponseModel
+from .cache import get_cache, set_cache
 
 load_dotenv()
 
 WEATHERAPI_API_KEY = os.getenv("WEATHERAPI_API_KEY")
-
-print("WEATHERAPI_API_KEY:", WEATHERAPI_API_KEY)
 
 async def fetch_weather(
     destination: str,
     start_date: date,
     end_date: date,
 ) -> list[weatherResponseModel]:
+    cache_key = f"{destination}_{start_date}_{end_date}"
+    cached_data = get_cache(cache_key)
+    if cached_data:
+        return cached_data
+
 
     async with httpx.AsyncClient() as client:
         response = await client.get(
@@ -45,5 +46,5 @@ async def fetch_weather(
                 rain_chance=day["day"]["daily_chance_of_rain"],
             )
             forecasts.append(forecast)
-
+        set_cache(cache_key, forecasts, ttl=3600)  # Cache for 1 hour
         return forecasts

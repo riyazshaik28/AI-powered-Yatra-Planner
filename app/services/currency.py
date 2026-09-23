@@ -17,10 +17,11 @@ async def fetch_currency_rates(base_currency: str) -> dict:
 
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            f"https://v6.exchangerate-api.com/v6/{EXCHANGERATE_API_KEY}/latest/USD{base_currency}"
+            f"https://v6.exchangerate-api.com/v6/{EXCHANGERATE_API_KEY}/latest/{base_currency}"
         )
         response.raise_for_status()
         data = response.json()
-        rates=data.get("rates", {})
+
+        rates=data.get("conversion_rates", {})
         set_cache(cache_key, rates, ttl=3600)  # Cache for 1 hour
         return rates
